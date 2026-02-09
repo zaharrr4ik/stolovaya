@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Авторизация - Stolovaia{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Вход в систему</h1>
+
+        {% if id == '' %}
+        <form method="POST" action="/login_user_help/" class="login-form">
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" name="user_name" required placeholder="Введите ваш логин">
+            </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="password1" required placeholder="Введите ваш пароль">
+            </div>
+
+            <button type="submit" class="login-btn">Войти в систему</button>
+
+            <p class="register-link">
+                Нет аккаунта? <a href="/reg_user_help/">Зарегистрируйтесь</a>
+            </p>
+        </form>
+        {% endif %}
+
+        {% if id == 'error' %}
+        <div class="error-message">
+            Пользователь не найден. Проверьте логин и пароль.
+        </div>
+        <div class="action-buttons">
+            <a href="/login_user_help/" class="btn login-btn">Авторизация</a>
+            <a href="/reg_user_help/" class="btn register-btn">Регистрация</a>
+        </div>
+        {% endif %}
+
+        {% if id > '0' and id != 'error' %}
+        <div class="success-message">
+            Авторизация прошла успешно
+        </div>
+        <div class="action-buttons">
+            <a href="/profile/" class="btn login-btn">Личный кабинет</a>
+            <a href="/" class="btn register-btn">На главную</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

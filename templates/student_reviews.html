@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Отзывы о блюдах - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1>Отзывы о блюдах</h1>
+
+    <div style="margin: 30px 0;">
+        <h3>Оставить отзыв</h3>
+        <form method="POST" action="/student_reviews/">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Название блюда:</label>
+                <input type="text" name="dish_name" required style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Оценка (1-5):</label>
+                <select name="rating" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                    <option value="5">5 - Отлично</option>
+                    <option value="4">4 - Хорошо</option>
+                    <option value="3">3 - Удовлетворительно</option>
+                    <option value="2">2 - Плохо</option>
+                    <option value="1">1 - Очень плохо</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Комментарий:</label>
+                <textarea name="comment" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd;"></textarea>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 12px; background: #17a2b8; color: white; border: none; cursor: pointer;">Опубликовать отзыв</button>
+        </form>
+    </div>
+
+    <div style="margin: 30px 0;">
+        <h3>Мои отзывы</h3>
+        {% if reviews %}
+        <div style="margin-top: 15px;">
+            {% for review in reviews %}
+            <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <strong>{{ review[0] }}</strong>
+                    <span>
+                        {% for i in range(review[1]|int) %}★{% endfor %}
+                        {% for i in range(5-review[1]|int) %}☆{% endfor %}
+                    </span>
+                </div>
+                <p>{{ review[2] }}</p>
+                <small style="color: #666;">{{ review[3] }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Вы еще не оставляли отзывов.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

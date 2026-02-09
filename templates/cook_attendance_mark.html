@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Отметка посещений - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Отметка посещений питания</h1>
+
+    <div style="margin: 30px 0; padding: 15px; background-color: #d4edda; border-radius: 5px;">
+        <h3>Сегодня: {{ today_date }}</h3>
+        <p>Вы можете отметить учеников, которые получили питание сегодня.</p>
+    </div>
+
+<div style="margin: 30px 0; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px;">
+    <h3>Быстрая отметка</h3>
+
+    <form method="POST" action="/cook_mark_attendance/">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px;">ID ученика или имя:</label>
+                <input type="text" name="student_id" placeholder="Введите ID или имя" list="studentList"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <datalist id="studentList">
+                    {% for student in all_students %}
+                    <option value="{{ student.id }}">{{ student.name }} ({{ student.class }})</option>
+                    <option value="{{ student.name }}">{{ student.name }} ({{ student.class }})</option>
+                    {% endfor %}
+                </datalist>
+                <small style="color: #666;">Можно ввести ID ({{ all_students[0].id if all_students else '1' }}) или имя ({{ all_students[0].name if all_students else 'Имя' }})</small>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px;">Тип питания:</label>
+                <select name="meal_type" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="breakfast">Завтрак</option>
+                    <option value="lunch">Обед</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Отметить посещение
+        </button>
+    </form>
+
+    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+        <p><strong>Доступные ученики:</strong></p>
+        <div style="max-height: 150px; overflow-y: auto; padding: 10px;">
+            {% for student in all_students %}
+            <div style="margin-bottom: 5px; font-size: 14px;">
+                <span style="font-weight: bold;">ID: {{ student.id }}</span> -
+                <span>{{ student.name }}</span> -
+                <span style="color: #666;">{{ student.class }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+    <div style="margin: 30px 0; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px;">
+        <h3>Оплаченные приемы пищи на сегодня</h3>
+
+        {% if paid_meals %}
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <a href="?mark_all=breakfast" style="padding: 8px 15px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px;">
+                Отметить все завтраки
+            </a>
+            <a href="?mark_all=lunch" style="padding: 8px 15px; background: #17a2b8; color: white; text-decoration: none; border-radius: 3px;">
+                Отметить все обеды
+            </a>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Ученик</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Класс</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Тип питания</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Статус</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meal in paid_meals %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        <strong>{{ meal.student_name }}</strong>
+                        <br><small>ID: {{ meal.student_id }}</small>
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">{{ meal.class }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        {% if meal.meal_type == 'breakfast' %}
+                        <span style="color: #28a745;">Завтрак</span>
+                        {% else %}
+                        <span style="color: #17a2b8;">Обед</span>
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        {% if meal.status == 'paid' %}
+                        <span style="color: #ffc107;">Оплачено</span>
+                        {% else %}
+                        <span style="color: #28a745;">Посещено ✓</span>
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        {% if meal.status == 'paid' %}
+                        <a href="/cook_mark_single/{{ meal.payment_id }}"
+                           style="padding: 5px 10px; background: #28a745; color: white; text-decoration: none; border-radius: 3px;">
+                            Отметить
+                        </a>
+                        {% else %}
+                        <span style="color: #666;">Уже отмечено</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; padding: 20px; color: #666;">На сегодня нет оплаченных приемов пищи.</p>
+        {% endif %}
+    </div>
+
+    <div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+        <h3>Статистика за сегодня</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+            <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #28a745;">{{ stats.breakfast_paid }}</div>
+                <div>Завтраков оплачено</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #28a745;">{{ stats.breakfast_attended }}</div>
+                <div>Завтраков получено</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #17a2b8;">{{ stats.lunch_paid }}</div>
+                <div>Обедов оплачено</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #17a2b8;">{{ stats.lunch_attended }}</div>
+                <div>Обедов получено</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

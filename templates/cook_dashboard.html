@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Главная повара - Stolovaia{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Панель повара</h1>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 4px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Завтраков выдано</h3>
+            <p style="font-size: 20px; font-weight: bold; margin: 0;">{{ breakfast_total }}</p>
+        </div>
+
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 4px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Обедов выдано</h3>
+            <p style="font-size: 20px; font-weight: bold; margin: 0;">{{ lunch_total }}</p>
+        </div>
+
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 4px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Заявок на закупку</h3>
+            <p style="font-size: 20px; font-weight: bold; margin: 0;">{{ pending_requests }}</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <h3>Быстрые действия</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+            <a href="/cook_attendance/" class="btn">Учет выданного питания</a>
+            <a href="/cook_inventory/" class="btn">Проверить остатки</a>
+            <a href="/cook_purchase/" class="btn">Подать заявку на закупку</a>
+            <a href="/edit_menu/" class="btn">Редактировать меню</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f5f5f5;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+}
+.btn:hover {
+    background: #e0e0e0;
+}
+</style>
+{% endblock %}

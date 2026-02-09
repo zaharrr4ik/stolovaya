@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Остатки продуктов - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Контроль остатков продуктов и готовых блюд</h1>
+
+    <div style="margin: 30px 0;">
+        <h3>Остатки продуктов</h3>
+        {% if inventory %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Продукт</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Количество</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Единица</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Мин. остаток</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ item[1] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ item[2] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ item[3] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ item[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Нет данных о продуктах.</p>
+        {% endif %}
+    </div>
+
+    <div style="margin: 30px 0;">
+        <h3>Готовые блюда</h3>
+        {% if dishes %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Блюдо</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Доступно порций</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish in dishes %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ dish[1] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ dish[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Нет данных о готовых блюдах.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

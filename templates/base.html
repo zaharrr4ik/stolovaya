@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Stolovaia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if user and user != '' and user != 'error' %}
+    <header class="header">
+        <nav class="nav-container">
+            <div class="nav-links">
+                {% if user.role == 'admin' %}
+                    <a href="/admin_stats/" class="menu-button">Статистика</a>
+                    <a href="/admin_purchase_manage/" class="menu-button">Заявки</a>
+                    <a href="/admin_report/" class="menu-button">Отчеты</a>
+                    <a href="/admin_reviews/" class="menu-button">Отзывы</a>
+                    <a href="/admin_allergies/" class="menu-button">Аллергии</a>
+                    <a href="/profile/" class="profile-button">Профиль</a>
+                {% elif user.role == 'cook' %}
+                    <a href="/cook_menu/" class="menu-button">Меню на неделю</a>
+                    <a href="/cook_inventory_manage/" class="menu-button">Учет продуктов</a>
+                    <a href="/cook_purchase_request/" class="menu-button">Заявки на покупку</a>
+                    <a href="/cook_mark_attendance/" class="menu-button">Отметка посещений</a>
+                    <a href="/edit_menu/" class="menu-button">Редактировать меню</a>
+                    <a href="/profile/" class="profile-button">Профиль</a>
+                {% elif user.role == 'student' %}
+                    <a href="/menu/" class="menu-button">Меню</a>
+                    <a href="/student_payment/" class="menu-button">Баланс</a>
+                    <a href="/student_reviews/" class="menu-button">Отзывы</a>
+                    <a href="/profile/" class="profile-button">Профиль</a>
+                {% else %}
+                    <a href="/menu/" class="menu-button">Меню</a>
+                    <a href="/profile/" class="profile-button">Профиль</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

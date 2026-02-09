@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Меню - Stolovaia{% endblock %}
+
+{% block content %}
+<div class="menu-container">
+    <div class="balance-header">
+        <h1 class="menu-title">Меню столовой</h1>
+        <div class="balance-info">
+            Ваш баланс: <span class="balance-amount">{{ balance }} протокоинов</span>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px;">
+        <a href="?week_offset={{ week_offset - 1 }}" style="padding: 8px 15px; background: #f5f5f5; border: 1px solid #aaa; border-radius: 3px; text-decoration: none; color: #333;">
+            ← Предыдущая неделя
+        </a>
+
+        <div style="text-align: center;">
+            <div style="font-weight: bold; font-size: 18px;">
+                {% if week_offset == 0 %}
+                    Текущая неделя
+                {% elif week_offset == 1 %}
+                    Следующая неделя
+                {% elif week_offset > 1 %}
+                    Через {{ week_offset }} недели
+                {% elif week_offset == -1 %}
+                    Прошлая неделя
+                {% else %}
+                    {{ week_offset|abs }} недели назад
+                {% endif %}
+            </div>
+            <div style="color: #666; font-size: 14px;">
+                {{ week_start_str }} - {{ week_end_str }}
+            </div>
+        </div>
+
+        <a href="?week_offset={{ week_offset + 1 }}" style="padding: 8px 15px; background: #f5f5f5; border: 1px solid #aaa; border-radius: 3px; text-decoration: none; color: #333;">
+            Следующая неделя →
+        </a>
+    </div>
+
+    <div style="margin-bottom: 20px; padding: 15px; background-color: #fff3cd; border-radius: 4px;">
+        <p><strong>Сегодня:</strong> {{ today.strftime('%d.%m.%Y') }} ({{ ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'][today.weekday()] }})</p>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="color-box unpaid"></div>
+            <span>Не оплачено</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box paid"></div>
+            <span>Оплачено</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box attended"></div>
+            <span>Посещено</span>
+        </div>
+    </div>
+
+    <table class="menu-table">
+        <thead>
+            <tr>
+                <th class="empty-cell"></th>
+                {% for day in table_data %}
+                <th>
+                    {{ day.day_name }}<br>
+                    <small>{{ day.date }}</small>
+                    {% if day.is_today %}
+                    <div style="color: #28a745; font-weight: bold; font-size: 12px;">(Сегодня)</div>
+                    {% endif %}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="meal-time">Завтрак</td>
+                {% for day in table_data %}
+                <td class="meal-item {{ day.breakfast_status }}"
+                    {% if day.breakfast_status == 'unpaid' %}
+                    onclick="handleMealClick('{{ day.breakfast_status }}', {{ day.day_index }}, 'breakfast')"
+                    {% elif day.breakfast_status == 'paid' and day.is_today %}
+                    onclick="handleMealClick('{{ day.breakfast_status }}', {{ day.day_index }}, 'breakfast')"
+                    {% endif %}>
+                    <div class="meal-content">
+                        <div class="meal-text">
+                            <strong style="font-size: 18px;">{{ day.breakfast_dish.name }}</strong><br>
+                            <small style="font-size: 16px;">{{ day.breakfast_dish.description }}</small>
+                        </div>
+                        <div class="meal-status">
+                            {% if day.breakfast_status == 'unpaid' %}
+                            <span class="status-text">Оплатить 50 прот.</span>
+                            {% elif day.breakfast_status == 'paid' and day.is_today %}
+                            <span class="status-text">Отметить посещение</span>
+                            {% elif day.breakfast_status == 'paid' and not day.is_today %}
+                            <span class="status-text">Оплачено</span>
+                            {% elif day.breakfast_status == 'attended' %}
+                            <span class="status-text">Посещено ✓</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="meal-time">Обед</td>
+                {% for day in table_data %}
+                <td class="meal-item {{ day.lunch_status }}"
+                    {% if day.lunch_status == 'unpaid' %}
+                    onclick="handleMealClick('{{ day.lunch_status }}', {{ day.day_index }}, 'lunch')"
+                    {% elif day.lunch_status == 'paid' and day.is_today %}
+                    onclick="handleMealClick('{{ day.lunch_status }}', {{ day.day_index }}, 'lunch')"
+                    {% endif %}>
+                    <div class="meal-content">
+                        <div class="meal-text">
+                            <strong style="font-size: 18px;">{{ day.lunch_dish.name }}</strong><br>
+                            <small style="font-size: 16px;">{{ day.lunch_dish.description }}</small>
+                        </div>
+                        <div class="meal-status">
+                            {% if day.lunch_status == 'unpaid' %}
+                            <span class="status-text">Оплатить 50 прот.</span>
+                            {% elif day.lunch_status == 'paid' and day.is_today %}
+                            <span class="status-text">Отметить посещение</span>
+                            {% elif day.lunch_status == 'paid' and not day.is_today %}
+                            <span class="status-text">Оплачено</span>
+                            {% elif day.lunch_status == 'attended' %}
+                            <span class="status-text">Посещено ✓</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <form id="meal-form" method="POST" action="/menu/">
+        <input type="hidden" name="action" id="action-input">
+        <input type="hidden" name="day" id="day-input">
+        <input type="hidden" name="meal_type" id="meal-type-input">
+        <input type="hidden" name="week_offset" id="week-offset-input" value="{{ week_offset }}">
+    </form>
+
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="/student_subscription/" class="btn">Баланс и абонементы</a>
+        <a href="/student_reviews/" class="btn">Оставить отзыв</a>
+        <a href="/student_edit_profile/" class="btn">Редактировать профиль</a>
+    </div>
+</div>
+
+<script>
+function handleMealClick(status, day, mealType) {
+    const form = document.getElementById('meal-form');
+    const actionInput = document.getElementById('action-input');
+    const dayInput = document.getElementById('day-input');
+    const mealTypeInput = document.getElementById('meal-type-input');
+    const weekOffsetInput = document.getElementById('week-offset-input');
+
+    if (status === 'unpaid') {
+        if (confirm('Оплатить этот прием пищи за 50 протокоинов?')) {
+            actionInput.value = 'pay';
+            dayInput.value = day;
+            mealTypeInput.value = mealType;
+            form.submit();
+        }
+    } else if (status === 'paid') {
+        if (confirm('Отметить посещение этого приема пищи?')) {
+            actionInput.value = 'attend';
+            dayInput.value = day;
+            mealTypeInput.value = mealType;
+            form.submit();
+        }
+    }
+}
+</script>
+
+<style>
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 5px;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.menu-table .meal-item {
+    cursor: pointer;
+}
+
+.menu-table .meal-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Для ячеек, которые не кликабельны */
+.menu-table .meal-item[onclick=""] {
+    cursor: default;
+}
+
+.menu-table .meal-item[onclick=""]:hover {
+    transform: none;
+    box-shadow: none;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование профиля - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1>Редактирование профиля</h1>
+
+    <div style="margin: 30px 0;">
+        <form method="POST" action="/student_edit_profile/">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Аллергии:</label>
+                <input type="text" name="allergies" value="{{ user.allergies }}" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                <small style="color: #666;">Перечислите аллергии через запятую</small>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Предпочтения в питании:</label>
+                <input type="text" name="preferences" value="{{ user.preferences }}" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                <small style="color: #666;">Например: вегетарианец, не ем рыбу и т.д.</small>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer;">Сохранить изменения</button>
+        </form>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+        <h3>Текущие данные</h3>
+        <p><strong>Имя:</strong> {{ user.full_name }}</p>
+        <p><strong>Класс:</strong> {{ user.class }}</p>
+        <p><strong>Аллергии:</strong> {{ user.allergies or 'не указаны' }}</p>
+        <p><strong>Предпочтения:</strong> {{ user.preferences or 'не указаны' }}</p>
+    </div>
+</div>
+{% endblock %}

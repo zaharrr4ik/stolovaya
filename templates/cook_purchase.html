@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Заявки на закупку - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Внесение заявок на закупку продуктов</h1>
+
+    <div style="margin: 30px 0;">
+        <h3>Подать новую заявку</h3>
+        <form method="POST" action="/cook_purchase/">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Название:</label>
+                    <input type="text" name="item_name" required style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Количество:</label>
+                    <input type="number" name="quantity" required min="1" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Цена (руб.):</label>
+                    <input type="number" name="price" required min="1" step="0.01" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                </div>
+            </div>
+
+            <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">Подать заявку</button>
+        </form>
+    </div>
+
+    <div style="margin: 30px 0;">
+        <h3>Мои заявки</h3>
+        {% if requests %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Товар</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Количество</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Цена</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Статус</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ req[1] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ req[2] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ req[3] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">
+                        {% if req[4] == 'pending' %}<span style="color: #ffc107;">Ожидает</span>
+                        {% elif req[4] == 'approved' %}<span style="color: #28a745;">Одобрено</span>
+                        {% elif req[4] == 'rejected' %}<span style="color: #dc3545;">Отклонено</span>
+                        {% else %}{{ req[4] }}{% endif %}
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">{{ req[6] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>У вас нет заявок на закупку.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

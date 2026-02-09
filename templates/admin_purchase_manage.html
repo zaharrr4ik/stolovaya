@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Управление заявками - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1>Управление заявками на закупку</h1>
+
+    <div style="margin: 20px 0; display: flex; gap: 20px;">
+        <a href="/admin_stats/" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">← Назад</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+        <div style="border: 2px solid #ffc107; padding: 15px; border-radius: 5px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Ожидают</h3>
+            <p style="font-size: 32px; font-weight: bold; margin: 0; color: #ffc107;">{{ pending_count }}</p>
+        </div>
+        <div style="border: 2px solid #28a745; padding: 15px; border-radius: 5px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Одобрено</h3>
+            <p style="font-size: 32px; font-weight: bold; margin: 0; color: #28a745;">{{ approved_count }}</p>
+        </div>
+        <div style="border: 2px solid #17a2b8; padding: 15px; border-radius: 5px; text-align: center;">
+            <h3 style="margin: 0 0 10px 0;">Стоимость</h3>
+            <p style="font-size: 32px; font-weight: bold; margin: 0; color: #17a2b8;">{{ "%.2f"|format(total_cost) if total_cost else 0 }} руб.</p>
+        </div>
+    </div>
+
+    {% if all_requests %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Продукт</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Количество</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Цена</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Приоритет</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Статус</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Подал</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Дата</th>
+                <th style="border: 1px solid #dee2e6; padding: 10px;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in all_requests %}
+            <tr>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">
+                    <strong>{{ req[1] }}</strong>
+                    {% if req[5] %}
+                    <br><small style="color: #666;">{{ req[5] }}</small>
+                    {% endif %}
+                </td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">{{ req[2] }} {{ req[3] }}</td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">
+                    {% if req[4] and req[4] > 0 %}
+                    {{ "%.2f"|format(req[4]) }} руб.
+                    {% else %}
+                    <span style="color: #666;">не указана</span>
+                    {% endif %}
+                </td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">
+                    {% if req[6] == 'high' %}
+                    <span style="color: #dc3545; font-weight: bold;">Высокий</span>
+                    {% elif req[6] == 'normal' %}
+                    <span style="color: #17a2b8;">Обычный</span>
+                    {% elif req[6] == 'low' %}
+                    <span style="color: #6c757d;">Низкий</span>
+                    {% endif %}
+                </td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">
+                    {% if req[7] == 'pending' %}
+                    <span style="color: #ffc107; font-weight: bold;">⏳ Ожидает</span>
+                    {% elif req[7] == 'approved' %}
+                    <span style="color: #28a745; font-weight: bold;">✅ Одобрено</span>
+                    {% elif req[7] == 'rejected' %}
+                    <span style="color: #dc3545; font-weight: bold;">❌ Отклонено</span>
+                    {% endif %}
+                </td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">{{ req[9] }}</td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">{{ req[8][:10] }}</td>
+                <td style="border: 1px solid #dee2e6; padding: 10px;">
+                    {% if req[7] == 'pending' %}
+                    <form method="POST" style="display: inline;">
+                        <input type="hidden" name="request_id" value="{{ req[0] }}">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px;">✓ Одобрить</button>
+                    </form>
+                    <form method="POST" style="display: inline;">
+                        <input type="hidden" name="request_id" value="{{ req[0] }}">
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">✗ Отклонить</button>
+                    </form>
+                    {% else %}
+                    <span style="color: #666;">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p style="font-size: 18px;">Нет заявок на закупку</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

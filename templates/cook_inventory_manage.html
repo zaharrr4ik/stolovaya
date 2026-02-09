@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Учет продуктов - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1>Учет продуктов на складе</h1>
+
+    <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+        <a href="/cook_purchase_request/" class="btn" style="background: #6c757d; color: white;">Создать заявку на закупку</a>
+        <a href="/cook_menu/" class="btn" style="background: #6c757d; color: white;">Вернуться к меню</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 30px 0;">
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; text-align: center; background: #f8f9fa;">
+            <div style="font-size: 24px; font-weight: bold; color: #495057;">{{ inventory|length }}</div>
+            <div style="color: #666;">продуктов на складе</div>
+        </div>
+
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; text-align: center; background: #f8f9fa;">
+            <div style="font-size: 24px; font-weight: bold; color: #495057;">{{ dishes|length }}</div>
+            <div style="color: #666;">готовых блюд</div>
+        </div>
+
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; text-align: center; background: #f8f9fa;">
+            {% set low_count = 0 %}
+            {% for item in inventory %}
+                {% if item[4] and item[2]|float <= item[4]|float %}
+                    {% set low_count = low_count + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div style="font-size: 24px; font-weight: bold; color: #495057;">{{ low_count }}</div>
+            <div style="color: #666;">продуктов заканчивается</div>
+        </div>
+
+        <div style="border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; text-align: center; background: #f8f9fa;">
+            {% set zero_dishes = 0 %}
+            {% for dish in dishes %}
+                {% if dish[2]|int == 0 %}
+                    {% set zero_dishes = zero_dishes + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div style="font-size: 24px; font-weight: bold; color: #495057;">{{ zero_dishes }}</div>
+            <div style="color: #666;">блюд закончилось</div>
+        </div>
+    </div>
+
+    <div style="margin: 40px 0; border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; background: #f8f9fa;">
+        <h2>Добавить новый продукт на склад</h2>
+
+        <form method="POST" action="/cook_inventory_manage/" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px;">
+            <input type="hidden" name="action" value="add_product">
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: #495057;">Название продукта:</label>
+                <input type="text" name="item_name" required placeholder="Мука, сахар, картофель..."
+                       style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: #495057;">Сколько есть:</label>
+                <input type="number" name="quantity" required step="0.1" min="0" placeholder="10.5"
+                       style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: #495057;">Единица измерения:</label>
+                <select name="unit" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                    <option value="">Выберите единицу</option>
+                    <option value="кг">килограммы (кг)</option>
+                    <option value="г">граммы (г)</option>
+                    <option value="л">литры (л)</option>
+                    <option value="шт">штуки (шт)</option>
+                    <option value="уп">упаковки (уп)</option>
+                    <option value="бан">банки (бан)</option>
+                </select>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: #495057;">Заказывать, когда останется:</label>
+                <input type="number" name="min_quantity" step="0.1" min="0" placeholder="2.5"
+                       style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                <small style="color: #6c757d; font-size: 12px;">Оставьте пустым, если не нужно отслеживать</small>
+            </div>
+
+            <div style="grid-column: span 4; margin-top: 10px;">
+                <button type="submit" style="padding: 10px 20px; background: #495057; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                    Добавить продукт на склад
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="margin: 40px 0; border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; background: #f8f9fa;">
+        <h2>Продукты на складе</h2>
+
+        {% if inventory %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
+            <thead>
+                <tr style="background-color: #e9ecef;">
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Продукт</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Текущий остаток</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Единица</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Заказывать при остатке</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Статус</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                {% set quantity = item[2]|float %}
+                {% set min_q = item[4]|float if item[4] else 0 %}
+                {% set is_low = min_q > 0 and quantity <= min_q %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 10px; font-weight: bold;">{{ item[1] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        <form method="POST" action="/cook_inventory_manage/" style="display: inline;">
+                            <input type="hidden" name="action" value="update_product">
+                            <input type="hidden" name="product_id" value="{{ item[0] }}">
+                            <input type="number" name="quantity" value="{{ item[2] }}" step="0.1" min="0"
+                                   style="width: 100px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">{{ item[3] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                            <input type="number" name="min_quantity" value="{{ item[4] or '' }}" step="0.1" min="0"
+                                   style="width: 100px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        {% if is_low %}
+                        <span style="color: #dc3545; font-weight: bold;">
+                            Нужно заказать
+                        </span>
+                        <br>
+                        <a href="/cook_purchase_request/?product={{ item[1] }}&quantity={{ (min_q*2-quantity)|round(1) if min_q*2-quantity > 0 else min_q }}&unit={{ item[3] }}"
+                           style="color: #495057; font-size: 12px; text-decoration: none;">
+                            → Создать заявку
+                        </a>
+                        {% else %}
+                        <span style="color: #28a745;">
+                            Норма
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        <button type="submit" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                            Обновить
+                        </button>
+                        </form>
+
+                        <form method="POST" action="/cook_inventory_manage/" style="display: inline;">
+                            <input type="hidden" name="action" value="delete_product">
+                            <input type="hidden" name="product_id" value="{{ item[0] }}">
+                            <button type="submit" onclick="return confirm('Удалить продукт {{ item[1] }}?')"
+                                    style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                                Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #6c757d; background: white; border-radius: 5px; border: 1px solid #dee2e6;">
+            <p style="font-size: 18px;">На складе пока нет продуктов</p>
+            <p>Добавьте продукты через форму выше</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="margin: 40px 0; border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; background: #f8f9fa;">
+        <h2>Готовые блюда (порции на раздаче)</h2>
+
+        <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 4px; border: 1px solid #dee2e6;">
+            <h3>Добавить готовые порции</h3>
+            <form method="POST" action="/cook_inventory_manage/" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <input type="hidden" name="action" value="add_dish">
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #495057;">Блюдо из меню:</label>
+                    <select name="dish_name" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                        <option value="">-- Выберите блюдо --</option>
+                        {% for dish in menu_dishes %}
+                        <option value="{{ dish }}">{{ dish }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #495057;">Количество порций:</label>
+                    <input type="number" name="quantity_available" required min="0" placeholder="25"
+                           style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                </div>
+
+                <div style="align-self: end;">
+                    <button type="submit" style="padding: 10px 20px; background: #495057; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Добавить порции
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if dishes %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
+            <thead>
+                <tr style="background-color: #e9ecef;">
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Блюдо</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Готовых порций</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Статус</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px; text-align: left;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish in dishes %}
+                {% set quantity = dish[2]|int %}
+                {% set is_low = quantity < 20 %}
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 10px; font-weight: bold;">{{ dish[1] }}</td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        <form method="POST" action="/cook_inventory_manage/" style="display: inline;">
+                            <input type="hidden" name="action" value="update_dish">
+                            <input type="hidden" name="dish_id" value="{{ dish[0] }}">
+                            <input type="number" name="quantity_available" value="{{ dish[2] }}" min="0"
+                                   style="width: 100px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        {% if quantity == 0 %}
+                        <span style="color: #dc3545; font-weight: bold;">
+                            Закончилось
+                        </span>
+                        {% elif is_low %}
+                        <span style="color: #ffc107; font-weight: bold;">
+                            Мало порций
+                        </span>
+                        {% else %}
+                        <span style="color: #28a745;">
+                            Достаточно
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #dee2e6; padding: 10px;">
+                        <button type="submit" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                            Обновить
+                        </button>
+                        </form>
+
+                        <form method="POST" action="/cook_inventory_manage/" style="display: inline;">
+                            <input type="hidden" name="action" value="delete_dish">
+                            <input type="hidden" name="dish_id" value="{{ dish[0] }}">
+                            <button type="submit" onclick="return confirm('Удалить блюдо {{ dish[1] }}?')"
+                                    style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                                Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #6c757d; background: white; border-radius: 5px; border: 1px solid #dee2e6;">
+            <p style="font-size: 18px;">Нет готовых блюд на раздаче</p>
+            <p>Добавьте порции через форму выше</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #6c757d;
+    border: 1px solid #6c757d;
+    border-radius: 3px;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.2s;
+}
+.btn:hover {
+    background: #5a6268;
+    border-color: #545b62;
+}
+</style>
+{% endblock %}

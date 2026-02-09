@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование меню - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1>Редактирование меню</h1>
+
+    <div style="margin: 30px 0;">
+        <h3>Редактировать блюдо</h3>
+        <form method="POST" action="/edit_menu/">
+            <input type="hidden" name="action" value="update">
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">День недели:</label>
+                    <select name="day" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                        {% for day in week_days %}
+                        <option value="{{ day.id }}">{{ day.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Тип питания:</label>
+                    <select name="meal_type" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                        <option value="breakfast">Завтрак</option>
+                        <option value="lunch">Обед</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Название блюда:</label>
+                    <input type="text" name="dish_name" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Описание:</label>
+                    <input type="text" name="description" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                </div>
+            </div>
+
+            <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Сохранить изменения
+            </button>
+        </form>
+    </div>
+
+    <div style="margin: 30px 0;">
+        <h3>Текущее меню</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">День недели</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Тип питания</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Название блюда</th>
+                    <th style="border: 1px solid #dee2e6; padding: 10px;">Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day_id in range(5) %}
+                    {% set day_name = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'][day_id] %}
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;" rowspan="2">{{ day_name }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">Завтрак</td>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">{{ menu_dishes.get(day_id, {}).get('breakfast', {}).get('name', 'Не указано') }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">{{ menu_dishes.get(day_id, {}).get('breakfast', {}).get('description', 'Не указано') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">Обед</td>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">{{ menu_dishes.get(day_id, {}).get('lunch', {}).get('name', 'Не указано') }}</td>
+                        <td style="border: 1px solid #dee2e6; padding: 10px;">{{ menu_dishes.get(day_id, {}).get('lunch', {}).get('description', 'Не указано') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/cook_menu/" class="btn">Назад к меню</a>
+    </div>
+</div>
+
+<style>
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #f5f5f5;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    margin: 5px;
+    text-decoration: none;
+    color: #333;
+}
+.btn:hover {
+    background: #e0e0e0;
+}
+</style>
+{% endblock %}

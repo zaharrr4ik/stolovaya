@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - Stolovaia{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Регистрация</h1>
+
+        {% if ret=='Успех' %}
+        <div class="success-message">
+            Регистрация прошла успешно! Теперь вы можете пользоваться системой.
+        </div>
+        <div class="action-buttons">
+            <a href="/login_user_help/" class="btn login-btn">Войти в аккаунт</a>
+        </div>
+        {% elif ret=='Ошибка' %}
+        <div class="error-message">
+            Ошибка регистрации. Возможно, пользователь с таким логином уже существует.
+        </div>
+        <div class="action-buttons">
+            <a href="/reg_user_help/" class="btn login-btn">Попробовать снова</a>
+        </div>
+        {% elif ret=='Неполн' %}
+        <div class="error-message">
+            Заполните все поля формы.
+        </div>
+        <div class="action-buttons">
+            <a href="/reg_user_help/" class="btn login-btn">Попробовать снова</a>
+        </div>
+        {% else %}
+        <form method="POST" action="/reg_user_help/" class="login-form">
+            <div class="form-group">
+                <label>Имя, Фамилия</label>
+                <input type="text" name="full_name" required placeholder="Введите ваше полное имя">
+            </div>
+
+            <div class="form-group">
+                <label>Класс</label>
+                <input type="text" name="class" required placeholder="1А">
+            </div>
+
+            <div class="form-group">
+                <label>Аллергии</label>
+                <input type="text" name="allergy" required placeholder="глютен, лактоза...">
+            </div>
+
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" name="login" required placeholder="Придумайте логин">
+            </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="password1" required placeholder="Введите пароль">
+            </div>
+
+            <div class="form-group">
+                <label>Подтверждение пароля</label>
+                <input type="password" name="password2" required placeholder="Повторите пароль">
+            </div>
+
+            <div class="form-group">
+                <label>Предпочтения в питании</label>
+                <input type="text" name="preferences" required placeholder="Ваши предпочтения">
+            </div>
+
+            <button type="submit" class="login-btn">Зарегистрироваться</button>
+
+            <p class="register-link">
+                Уже есть аккаунт? <a href="/login_user_help/">Войдите</a>
+            </p>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

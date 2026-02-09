@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Отзывы - Stolovaia{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>Отзывы о блюдах</h1>
+
+    <div style="margin: 30px 0;">
+        <h3>Все отзывы</h3>
+        {% if reviews %}
+        <div style="margin-top: 15px;">
+            {% for review in reviews %}
+            <div style="border: 1px solid #dee2e6; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div>
+                        <strong>{{ review[0] }}</strong>
+                        <span style="margin-left: 10px; color: #666;">от {{ review[3] }}</span>
+                    </div>
+                    <span>
+                        {% for i in range(review[1]|int) %}★{% endfor %}
+                        {% for i in range(5-review[1]|int) %}☆{% endfor %}
+                    </span>
+                </div>
+                <p>{{ review[2] }}</p>
+                <small style="color: #666;">{{ review[4] }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Нет отзывов.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
